@@ -1,0 +1,92 @@
+root = ./
+outdir = bin
+builddir = .build
+PROJECT_NAME = hunt-model
+
+objdir = .build/
+
+### Build tools configuration ###
+CC = gcc
+CPP = g++
+AS = as
+AR = ar
+RANLIB = ranlib
+LINK = gcc -static -Xlinker --no-insert-timestamp
+SUFEXE = .exe
+PYTHON3 = python
+
+### Compiler flags ###
+CC_INCLUDE = -I.
+CC_DEFINE =
+AS_INCLUDE =
+AS_DEFINE =
+LIB_PATH =
+LINKLIBS =
+
+###############################################################################
+# Base file
+###############################################################################
+extra_cflags =
+OPTIM = -O2
+
+CCFLAGS = ${OPTIM} $
+  -std=gnu99 -Wall -Wextra -Wno-unknown-pragmas -funsigned-char -funsigned-bitfields $
+  -fshort-enums ${extra_cflags} ${CC_INCLUDE} ${CC_DEFINE}
+
+CPPFLAGS = ${OPTIM} $
+  -Wall -Wextra -funsigned-char -funsigned-bitfields $
+  -fpack-struct -fshort-enums ${extra_cflags} ${CC_INCLUDE} ${CC_DEFINE}
+
+LINKFLAGS = ${LIB_PATH}
+
+ASFLAGS = ${CCFLAGS}
+
+###############################################################################
+
+rule cc
+  command = $CC $CCFLAGS -c $in -o $out -MD -MP -MT $out -MF $out.d
+  description = CC $out
+  depfile = $out.d
+  deps = gcc
+
+rule as
+  command = $CC $CCFLAGS -c $in -o $out -MD -MP -MT $out -MF $out.d
+  description = CC $out
+  depfile = $out.d
+  deps = gcc
+
+rule cpp
+  command = $CPP $CPPFLAGS -c $in -o $out -MD -MP -MT $out -MF $out.d
+  description = CPP $out
+  depfile = $out.d
+  deps = gcc
+
+rule link
+  command = $LINK $LINKFLAGS $in -o $out $LINKLIBS -MD -MP -MT $out -MF $out.d
+  description = LINK $out
+  depfile = $out.d
+  deps = gcc
+
+rule copy
+  command = cp $in $out
+  description = COPY $out
+
+###############################################################################
+# File rules
+###############################################################################
+
+build ${PROJECT_NAME}: phony ${outdir}/${PROJECT_NAME}${SUFEXE}
+
+build ${outdir}/${PROJECT_NAME}${SUFEXE}: copy ${objdir}/${PROJECT_NAME}${SUFEXE}
+
+###############################################################################
+# Generated
+###############################################################################
+build ${objdir}/console.o: cc ${root}/console.c
+build ${objdir}/view.o: cc ${root}/view.c
+build ${objdir}/config.o: cc ${root}/config.c
+build ${objdir}/model.o: cc ${root}/model.c
+build ${objdir}/control.o: cc ${root}/control.c
+
+build ${objdir}/${PROJECT_NAME}${SUFEXE}: link ${objdir}/console.o ${objdir}/view.o $
+  ${objdir}/config.o ${objdir}/model.o ${objdir}/control.o

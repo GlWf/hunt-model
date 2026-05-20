@@ -1,0 +1,6 @@
+out/*
+old/*
+.build/*
+bin/*
+__log.txt
+*.rtf
