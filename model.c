@@ -27,10 +27,14 @@ static void animal_add_to_list (animal_t *an);
 static void animal_remove_from_list (animal_t *an);
 static int get_free_field (int sx, int sy, int *dx, int *dy);
 
+static int  add_animal (int x, int y, int type, int vitality);
+static void add_animal_at_random_place (int type);
+
 static void animal_jump (animal_t *an);
 static animal_t *animal_find(animal_t *an, int type);
 static void animal_born(animal_t *parent, int born_chance);
 static void animal_die (animal_t *an);
+static void animal_die_all (void);
 static void animal_lifetime (animal_t *wolf);
 static void wolf_eat_rabbit (animal_t *wolf, animal_t *rabbit);
 
@@ -102,7 +106,7 @@ static void animal_remove_from_list (animal_t *an)
 }
 
 /*******************************************************************************
-  int add_animal (int x, int y, int type, int vitality)
+  static int add_animal (int x, int y, int type, int vitality)
 
   Функция добавления животного
 
@@ -113,7 +117,7 @@ static void animal_remove_from_list (animal_t *an)
 
   Возвращает
 *******************************************************************************/
-int add_animal (int x, int y, int type, int vitality)
+static int add_animal (int x, int y, int type, int vitality)
 {
   animal_t *an = NULL;
   int i;
@@ -142,7 +146,7 @@ int add_animal (int x, int y, int type, int vitality)
 }
 
 /*******************************************************************************
-  void add_animal_at_random_place (int type)
+  static void add_animal_at_random_place (int type)
 
   Функция добавления животного в случайное место. Если место уже занято,
   то животное не создаётся.
@@ -151,7 +155,7 @@ int add_animal (int x, int y, int type, int vitality)
     type - тип животного
 
 *******************************************************************************/
-void add_animal_at_random_place (int type)
+static void add_animal_at_random_place (int type)
 {
   int x = (rand() % FSIZE) + 1;
   int y = (rand() % FSIZE) + 1;
@@ -211,7 +215,8 @@ static int get_free_field (int sx, int sy, int *dx, int *dy)
   Функция инициализации модели
 
   Заполнение неиспользуемыми животными (в данной модели - котами) по краям
-  для корректной работы модели
+  для корректной работы модели.
+  Случайная расстановка случайного количества животных на поле.
 *******************************************************************************/
 void model_init (void)
 {
@@ -231,6 +236,21 @@ void model_init (void)
     GameField[i][FSIZE+1] = &Cat;
   }
   logfile = fopen("__log.txt", "w");
+
+  /* начальное добавление животных на поле */
+  int cnt;
+  cnt = (rand() % (FSIZE * 2)) + 1; /* случайное количество животных */
+  for (i = 0; i < cnt; i++) {
+    add_animal_at_random_place (ANIMAL_RABBIT);
+  }
+  cnt = (rand() % FSIZE) + 1; /* случайное количество животных */
+  for (i = 0; i < cnt; i++) {
+    add_animal_at_random_place (ANIMAL_WOLF_M);
+  }
+  cnt = (rand() % FSIZE) + 1; /* случайное количество животных */
+  for (i = 0; i < cnt; i++) {
+    add_animal_at_random_place (ANIMAL_WOLF_F);
+  }
 }
 
 
@@ -371,6 +391,23 @@ static void animal_die (animal_t *an)
   animal_remove_from_list(an);
   an->type = ANIMAL_NONE;
 }
+
+/*******************************************************************************
+  static void animal_die_all (void)
+
+  Функция уничтожения всех животных.
+*******************************************************************************/
+static void animal_die_all (void)
+{
+  animal_t *an = TheList.first;  /* берется первое животное в списке */
+  animal_t *next;
+  while (an != NULL) {           /* цикл пока список не закончится */
+    next = an->next;
+    animal_die (an);
+    an = next;
+  }
+}
+
 /*******************************************************************************
   static void wolf_eat_rabbit (animal_t *wolf, animal_t *rabbit)
 
@@ -522,10 +559,11 @@ void model (void)
 
   Функция, вызывающаяся в конце модели.
 
-  Сохраняет данные и закрывает отладочный файл на запись.
+  Очищает список животных, сохраняет данные и закрывает отладочный файл.
 *******************************************************************************/
 void model_finish(void)
 {
+  animal_die_all ();
   fclose(logfile);
 }
 

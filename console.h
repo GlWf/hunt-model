@@ -56,7 +56,6 @@ void hline (int y, int x0, int x1, char ch, WORD attr);
 void box (int x0, int y0, int x1, int y1, WORD attr);
 void clear (void);
 void redraw (void);
-void draw_string (int x, int y, const char *s, int len, WORD attr);
 
 #ifdef __cplusplus
   }
