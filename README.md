@@ -1,5 +1,10 @@
 # Курсовая работа
 
+## Исполняемый файл
+
+Уже собранный исполняемый файл для Win32 можно скачать в разделе *Releases*.
+
+[https://github.com/GlWf/hunt-model/releases/download/2.0/hunt-model.exe](https://github.com/GlWf/hunt-model/releases/download/2.0/hunt-model.exe)
 
 ## Сборка
 
